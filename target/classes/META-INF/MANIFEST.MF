@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Build-Jdk-Spec: 17
+Implementation-Title: safesmart-latest-jar
+Implementation-Version: 0.0.1-SNAPSHOTLT11-Nov
+Created-By: Maven Integration for Eclipse
+
