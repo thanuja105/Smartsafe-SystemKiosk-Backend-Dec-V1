@@ -121,18 +121,19 @@ public class InsertBill {
 	}
 	//@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@Column(name = "with_draw_date_time")
 	public LocalDateTime getWithDrawDateTime() {
 		return withDrawDateTime;
 	}
-
+	@Column(name = "with_draw_date_time")
 	public void setWithDrawDateTime(LocalDateTime withDrawDateTime) {
 		this.withDrawDateTime = withDrawDateTime;
 	}
-
+	@Column(name = "with_draw_status")
 	public boolean isWithDrawStatus() {
 		return withDrawStatus;
 	}
-
+	@Column(name = "with_draw_status")
 	public void setWithDrawStatus(boolean withDrawStatus) {
 		this.withDrawStatus = withDrawStatus;
 	}
