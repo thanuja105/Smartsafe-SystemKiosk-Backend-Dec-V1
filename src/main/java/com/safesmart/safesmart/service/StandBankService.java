@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.safesmart.safesmart.dto.ValetDenominationsDto;
+import com.safesmart.safesmart.model.ActionStatus;
 import com.safesmart.safesmart.model.UserInfo;
 import com.safesmart.safesmart.model.ValetDenominations;
 import com.safesmart.safesmart.repository.UserInfoRepository;
@@ -32,12 +33,16 @@ public class StandBankService {
 			if (optional.isPresent()) {
 				valetDenominations.setCreatedBy(optional.get());
 				valetDenominations.setCreated(LocalDateTime.now());
+				valetDenominations.setSync(false);
+				valetDenominations.setActionStatus(ActionStatus.Created);
 			}
 			
 		} else {
 			if (optional.isPresent()) {
 				valetDenominations.setModifiedBy(optional.get());
 				valetDenominations.setModified(LocalDateTime.now());
+				//valetDenominations.setSync(false);
+				valetDenominations.setActionStatus(ActionStatus.Updated);
 			}
 			//throw new RuntimeException("Denomination already created.");
 		}
