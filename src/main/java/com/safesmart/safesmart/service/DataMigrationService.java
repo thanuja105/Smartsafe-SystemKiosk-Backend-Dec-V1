@@ -738,10 +738,10 @@ public class DataMigrationService extends CommonService {
 		changeRequest2.setModified(changeRequest.getModified());
 		changeRequest2.setModifiedBy(changeRequest.getModifiedBy());
 		changeRequest2.setNickels(changeRequest.getNickels());
-		changeRequest2.setOrderStatus(changeRequest2.getOrderStatus());
-		changeRequest2.setQuarters(changeRequest2.getQuarters());
-		changeRequest2.setSync(changeRequest2.isSync());
-		changeRequest2.setType(changeRequest2.getType());
+		changeRequest2.setOrderStatus(changeRequest.getOrderStatus());
+		changeRequest2.setQuarters(changeRequest.getQuarters());
+		changeRequest2.setSync(changeRequest.isSync());
+		changeRequest2.setType(changeRequest.getType());
 
 		return changeRequest2;
 	}
