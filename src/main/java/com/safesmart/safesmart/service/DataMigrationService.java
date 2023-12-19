@@ -129,6 +129,9 @@ public class DataMigrationService extends CommonService {
 
 	}
 
+
+
+	//latest syncuserInfo
 	public void syncUserInfo() {
 		List<UserInfo> users = userInfoRepository.findBySync(false);
 		List<UserInfo> copyUsers = cloneUsersData(users);
@@ -152,7 +155,12 @@ public class DataMigrationService extends CommonService {
 					UserInfo dbUser = remote_userInfoRepository.findByIdentifier(user.getIdentifier());
 
 					if (dbUser != null) {
-						remote_userInfoRepository.save(user);
+						UserInfo updatedUser = convertToModel(user, true);
+						updatedUser.setId(dbUser.getId());
+						updatedUser.setRole(dbUser.getRole());
+						updatedUser.setStoreInfo(dbUser.getStoreInfo());
+					
+						remote_userInfoRepository.save(updatedUser);
 					}
 				}
 			});
@@ -171,15 +179,18 @@ public class DataMigrationService extends CommonService {
 	public List<UserInfo> cloneUsersData(List<UserInfo> users) {
 		List<UserInfo> cloneUsers = new ArrayList<UserInfo>(users.size());
 		for (UserInfo user : users) {
-			cloneUsers.add(convertToModel(user));
+			cloneUsers.add(convertToModel(user, false));
 		}
 		return cloneUsers;
 	}
 
-	public UserInfo convertToModel(UserInfo user) {
+	public UserInfo convertToModel(UserInfo user, boolean updated) {
 		UserInfo userInfo = new UserInfo();
-		userInfo.setId(user.getId());
-		userInfo.setRole(user.getRole());
+		if (!updated) {
+			userInfo.setId(user.getId());
+			userInfo.setRole(user.getRole());
+			userInfo.setStoreInfo(user.getStoreInfo());
+		}
 		userInfo.setUsername(user.getUsername());
 		userInfo.setPassword(user.getPassword());
 		userInfo.setCreate_time(LocalDate.now());
@@ -191,11 +202,15 @@ public class DataMigrationService extends CommonService {
 		userInfo.setPassLength(user.getPassLength());
 		userInfo.setIdentifier(user.getIdentifier());
 		userInfo.setSync(user.isSync());
-		userInfo.setStoreInfo(user.getStoreInfo());
+		
 		userInfo.setActionStatus(user.getActionStatus());
 		userInfo.setLastLoginDate(user.getLastLoginDate());
+		//userInfo.setLastLoginTime(user.getLastLoginTime());
 		return userInfo;
 	}
+
+	
+
 
 	public void syncTruckChnageRequestData() {
 		List<TruckChangeRequest> truckChangeRequestList = truckChangeRequestRepository.findBySync(false);
