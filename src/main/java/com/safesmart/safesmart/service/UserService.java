@@ -126,118 +126,7 @@ public class UserService {
 		userInfoRepository.save(userInfo);
 	}
 
-//	public void add(UserInfoRequest userInfoRequest) {
-//
-//
-//
-//		Role role = roleRepository.findByName(userInfoRequest.getRole());
-//
-//
-//
-//		UserInfo userInfo = userInfoRepository.findByUsername(userInfoRequest.getUsername());
-//
-//		if (userInfo != null) {
-//
-//			throw CommonException.CreateException(CommonExceptionMessage.ALREADY_EXISTS, "Username");
-//
-//		}
-//
-//		UserInfo infoPassword = userInfoRepository
-//
-//				.findByPassword(passwordEncrypt.encodePassword(userInfoRequest.getPassword()));
-//
-//		if (infoPassword != null) {
-//
-//			throw CommonException.CreateException(CommonExceptionMessage.ALREADY_EXISTS, "Password");
-//
-//		}
-//
-//
-//
-//		userInfo = new UserInfo();
-//
-//		userInfo.setId(userInfoRequest.getId());
-//
-//		userInfo.setRole(role);
-//
-//		userInfo.setUsername(userInfoRequest.getUsername());
-//
-//		userInfo.setPassword(passwordEncrypt.encodePassword(userInfoRequest.getPassword()));
-//
-//		userInfo.setCreate_time(LocalDate.now());
-//
-//		userInfo.setActive(true);
-//
-//		userInfo.setFirstName(userInfoRequest.getFirstName());
-//
-//		userInfo.setLastName(userInfoRequest.getLastName());
-//
-//		userInfo.setEmail(userInfoRequest.getEmail());
-//
-//		userInfo.setMobile(userInfoRequest.getMobile());
-//
-//		userInfo.setPassLength(userInfoRequest.getPassLength());
-//
-//		UserInfo dbUserInfo=null;
-//
-//		if (userInfoRequest.getLoggedUserId() != null) {
-//
-//			Optional<UserInfo> optionalAdminUser = userInfoRepository.findById(userInfoRequest.getLoggedUserId());
-//
-//			if (optionalAdminUser.isPresent()) {
-//
-//				UserInfo dbUser = optionalAdminUser.get();
-//
-//				UserInfo remoteUserInfo = remote_UserInfoRepository.findByIdentifier(dbUser.getIdentifier());
-//
-//				 dbUserInfo = dataMigrationService.convertToModel(remoteUserInfo);
-//
-//				if (dbUserInfo == null) {
-//
-//					userInfo.setSync(false);
-//
-//				}
-//
-//
-//
-//				if (dbUser != null) {
-//
-//					if (dbUser.getStoreInfo() != null) {
-//
-//						userInfo.setStoreInfo(dbUser.getStoreInfo());
-//
-//					}
-//
-//				}
-//
-//			}
-//
-//		}
-//
-//
-//
-//		try {
-//
-//			dbUserInfo.setSync(true);
-//
-//			remote_UserInfoRepository.save(dbUserInfo);
-//
-//		} catch (Exception e) {
-//
-//			userInfo.setSync(false);
-//
-//		}
-//
-//
-//
-//		userInfoRepository.save(userInfo);
-//
-//
-//
-//	}
-//
 
-	
 	public List<UserInfoResponse> findAllUser() {
 		// TODO Auto-generated method stub
 		List<UserInfo> users = (List<UserInfo>) userInfoRepository.findAll();
@@ -259,11 +148,38 @@ public class UserService {
 			return infoResponses;
 	}
 
-	public void deleteByUser(Long userId) {
-		userInfoRepository.deleteById(userId);
-	}
-	
 
+
+	
+	//latest delete code 
+	
+	public void deleteByUser(Long userId) {
+		Optional<UserInfo> optional = userInfoRepository.findById(userId);
+		if (optional.isPresent()) {
+			UserInfo userInfo = optional.get();
+			userInfo.setActionStatus(ActionStatus.Deleted);
+			userInfo.setActive(false);
+			userInfo.setSync(true);
+			
+			try {
+				UserInfo remotUserInfo = remote_UserInfoRepository.findByIdentifier(userInfo.getIdentifier());
+				if(remotUserInfo != null ) {
+					remotUserInfo.setActionStatus(ActionStatus.Deleted);
+					remotUserInfo.setActive(false);
+					remotUserInfo.setSync(true);
+					remote_UserInfoRepository.save(remotUserInfo);
+					userInfoRepository.save(userInfo);
+				}
+				
+			}catch (Exception e) {
+				throw new RuntimeException("User details not found");
+			}
+		}
+		// userInfoRepository.deleteById(userId);
+	}
+
+	
+	
 	public void deleteByUserD(Long days) {
 		List<UserInfo> users = (List<UserInfo>) userInfoRepository.findAll();
 
@@ -337,6 +253,8 @@ public class UserService {
 		return info;
 		
 	}
+
+	//latest user update()
 	public void updateUser(UserInfoRequest userInfoRequest) {
 
 		Role role = roleRepository.findByName(userInfoRequest.getRole());
@@ -360,12 +278,30 @@ public class UserService {
 		info.setLastName(userInfoRequest.getLastName());
 		info.setEmail(userInfoRequest.getEmail());
 		info.setMobile(userInfoRequest.getMobile());
+		info.setActionStatus(ActionStatus.Updated);
+		UserInfo dbUserInfo = remote_UserInfoRepository.findByIdentifier(info.getIdentifier());
+		if (dbUserInfo == null) {
+			info.setSync(false);
+		}
+
+		try {
+			if(dbUserInfo != null) {
+			UserInfo upadtedUserInfo =	dataMigrationService.convertToModel(info, true);
+			upadtedUserInfo.setSync(true);
+			upadtedUserInfo.setId(dbUserInfo.getId());
+			upadtedUserInfo.setRole(dbUserInfo.getRole());
+			upadtedUserInfo.setStoreInfo(dbUserInfo.getStoreInfo());
+			remote_UserInfoRepository.save(upadtedUserInfo);
+			}
+			
+		} catch (Exception e) {
+			info.setSync(false);
+		}
+
 		userInfoRepository.save(info);
-		
-		
 
 	}
-
+	
 	public List<UserInfoResponse> getUserPaginations(int page, int size) {
 		Page<UserInfo> userPage = userInfoRepository.findAll(PageRequest.of(page, size));
 		List<UserInfo> users = userPage.getContent();
