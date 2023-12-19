@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -132,48 +134,98 @@ public class DataMigrationService extends CommonService {
 
 
 	//latest syncuserInfo
+//	public void syncUserInfo() {
+//		List<UserInfo> users = userInfoRepository.findBySync(false);
+//		List<UserInfo> copyUsers = cloneUsersData(users);
+//
+//		List<UserInfo> createdUsers = new ArrayList<UserInfo>();
+//
+//		if (copyUsers != null && copyUsers.size() > 0) {
+//			copyUsers.forEach(user -> {
+//				user.setSync(true);
+//				if (user.getStoreInfo() != null) {
+//					StoreInfo remoteStore = remote_storeInfoRepository
+//							.findByIdentifier(user.getStoreInfo().getIdentifier());
+//					if (remoteStore != null) {
+//						user.setStoreInfo(remoteStore);
+//					}
+//				}
+//
+//				if (user.getActionStatus().name().equalsIgnoreCase("Created")) {
+//					createdUsers.add(user);
+//				} else if (user.getActionStatus().name().equalsIgnoreCase("Updated")) {
+//					UserInfo dbUser = remote_userInfoRepository.findByIdentifier(user.getIdentifier());
+//
+//					if (dbUser != null) {
+//						UserInfo updatedUser = convertToModel(user, true);
+//						updatedUser.setId(dbUser.getId());
+//						updatedUser.setRole(dbUser.getRole());
+//						updatedUser.setStoreInfo(dbUser.getStoreInfo());
+//					
+//						remote_userInfoRepository.save(updatedUser);
+//					}
+//				}
+//			});
+//
+//			if (createdUsers.size() > 0) {
+//				remote_userInfoRepository.saveAll(createdUsers);
+//			}
+//
+//			users.forEach(user -> {
+//				user.setSync(true);
+//			});
+//			userInfoRepository.saveAll(users);
+//		}
+//	}
+	
+	
+	
+	@Transactional
 	public void syncUserInfo() {
-		List<UserInfo> users = userInfoRepository.findBySync(false);
-		List<UserInfo> copyUsers = cloneUsersData(users);
+	    List<UserInfo> localUsers = userInfoRepository.findBySync(false);
+	    
+	    List<UserInfo> copyUsers = cloneUsersData(localUsers);
 
-		List<UserInfo> createdUsers = new ArrayList<UserInfo>();
 
-		if (copyUsers != null && copyUsers.size() > 0) {
-			copyUsers.forEach(user -> {
-				user.setSync(true);
-				if (user.getStoreInfo() != null) {
+	    if (copyUsers != null && !copyUsers.isEmpty()) {
+	        for (UserInfo localUser : copyUsers) {
+	            localUser.setSync(true);
+	            
+				if (localUser.getStoreInfo() != null) {
 					StoreInfo remoteStore = remote_storeInfoRepository
-							.findByIdentifier(user.getStoreInfo().getIdentifier());
+							.findByIdentifier(localUser.getStoreInfo().getIdentifier());
 					if (remoteStore != null) {
-						user.setStoreInfo(remoteStore);
+						localUser.setStoreInfo(remoteStore);
 					}
-				}
+				
+	            // Fetch the corresponding user from the remote server
+	            UserInfo remoteUser = remote_userInfoRepository.findByIdentifier(localUser.getIdentifier());
 
-				if (user.getActionStatus().name().equalsIgnoreCase("Created")) {
-					createdUsers.add(user);
-				} else if (user.getActionStatus().name().equalsIgnoreCase("Updated")) {
-					UserInfo dbUser = remote_userInfoRepository.findByIdentifier(user.getIdentifier());
+	            if (remoteUser == null) {
+	                // If the user doesn't exist on the server, create a new user
+	            	
+	                remote_userInfoRepository.save(convertToModel(localUser, true));
+	            } else {
+	                // If the user exists on the server, update the user
+	                UserInfo updatedUser = convertToModel(localUser, true);
+	                updatedUser.setId(remoteUser.getId());
+	                updatedUser.setRole(remoteUser.getRole());
+	                updatedUser.setStoreInfo(remoteUser.getStoreInfo());
 
-					if (dbUser != null) {
-						UserInfo updatedUser = convertToModel(user, true);
-						updatedUser.setId(dbUser.getId());
-						updatedUser.setRole(dbUser.getRole());
-						updatedUser.setStoreInfo(dbUser.getStoreInfo());
-					
-						remote_userInfoRepository.save(updatedUser);
-					}
-				}
-			});
+	                remote_userInfoRepository.save(updatedUser);
+	            }
+	        }
+				
+				localUsers.forEach(user -> {
+					user.setSync(true);
+				});
+				//userInfoRepository.saveAll(localUsers);
+			
 
-			if (createdUsers.size() > 0) {
-				remote_userInfoRepository.saveAll(createdUsers);
-			}
-
-			users.forEach(user -> {
-				user.setSync(true);
-			});
-			userInfoRepository.saveAll(users);
-		}
+	        // Save the updated sync status for local users
+	        userInfoRepository.saveAll(localUsers);
+	    }
+	    }
 	}
 
 	public List<UserInfo> cloneUsersData(List<UserInfo> users) {
@@ -202,6 +254,10 @@ public class DataMigrationService extends CommonService {
 		userInfo.setPassLength(user.getPassLength());
 		userInfo.setIdentifier(user.getIdentifier());
 		userInfo.setSync(user.isSync());
+		
+		userInfo.setRole(user.getRole());
+		userInfo.setStoreInfo(user.getStoreInfo());
+
 		
 		userInfo.setActionStatus(user.getActionStatus());
 		userInfo.setLastLoginDate(user.getLastLoginDate());
