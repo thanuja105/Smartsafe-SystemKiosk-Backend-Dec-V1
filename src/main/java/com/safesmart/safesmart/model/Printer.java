@@ -53,7 +53,7 @@ public class Printer {
 	
 	
 	@ManyToOne(cascade = CascadeType.ALL, targetEntity = StoreInfo.class)
-	@JoinColumn(name="storeId")
+	@JoinColumn(name="store_id")
 	private StoreInfo storeinfop;
 
 	public Printer() {

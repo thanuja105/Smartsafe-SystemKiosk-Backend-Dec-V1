@@ -41,12 +41,16 @@ public class Corp {
 	@Column(name="status")
 	private boolean status;
 	
+	 @Column(name="city_name")
 	 private String cityName;
-		
+	 
+	 @Column(name="zip_code")	
      private String zipCode;
-		
+	
+	 @Column(name="state_name")	
 	 private String stateName;
-		
+	
+	 @Column(name="street_name")	
 	 private String streetName;
 	 
 	 private boolean sync;

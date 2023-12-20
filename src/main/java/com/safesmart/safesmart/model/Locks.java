@@ -45,7 +45,7 @@ public class Locks {
 	private boolean active;
 	
 	@ManyToOne(cascade = CascadeType.ALL, targetEntity = StoreInfo.class)
-	@JoinColumn(name="storeId")
+	@JoinColumn(name="store_id")
 	private StoreInfo storeInfo;
 	
 	private boolean sync;
