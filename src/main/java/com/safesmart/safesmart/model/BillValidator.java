@@ -47,7 +47,7 @@ public class BillValidator {
 	private String identifier;
 	
 	@ManyToOne(cascade = CascadeType.ALL, targetEntity = StoreInfo.class)
-	@JoinColumn(name="storeId")
+	@JoinColumn(name="store_id")
 	private StoreInfo storeinfob;
 	
 	@Enumerated(EnumType.STRING)
