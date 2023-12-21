@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import org.hibernate.Hibernate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -858,69 +859,176 @@ public class DataMigrationService extends CommonService {
 		return changeRequest2;
 	}
 
+//	public void syncValetDenominationsData() {
+//		System.out.println("This is the Valetdenomination sync preocess checking ----------------------");
+//		List<ValetDenominations> valetDenominationsList = valetDenominationsRepository.findBySync(false);
+//		List<ValetDenominations> copyValetDenominationsList = cloneValetDenominations(valetDenominationsList);
+//
+//		List<ValetDenominations> createdValetDenominationsList = new ArrayList<ValetDenominations>();
+//
+//		if (copyValetDenominationsList != null && copyValetDenominationsList.size() > 0) {
+//			copyValetDenominationsList.forEach(valetDenomination -> {
+//				valetDenomination.setSync(true);
+//
+//				if (valetDenomination.getCreatedBy() != null) {
+//					UserInfo remoteUserInfo = remote_userInfoRepository
+//							.findByIdentifier(valetDenomination.getCreatedBy().getIdentifier());
+//
+//					if (remoteUserInfo != null) {
+//						valetDenomination.setCreatedBy(remoteUserInfo);
+//					}
+//				}
+//
+//				if (valetDenomination.getModifiedBy() != null) {
+//					UserInfo remoteModifiedUserInfo = remote_userInfoRepository
+//							.findByIdentifier(valetDenomination.getModifiedBy().getIdentifier());
+//
+//					if (remoteModifiedUserInfo != null) {
+//						valetDenomination.setModifiedBy(remoteModifiedUserInfo);
+//					}
+//				}
+//
+//				if (valetDenomination.getActionStatus() == ActionStatus.Created) {
+//					createdValetDenominationsList.add(valetDenomination);
+//				} else if (valetDenomination.getActionStatus() == ActionStatus.Updated) {
+//					ValetDenominations dbValetDenominations = remote_valetDenominationsRepository
+//							.findByIdentifier(valetDenomination.getIdentifier());
+//
+//					if (dbValetDenominations != null) {
+//						remote_valetDenominationsRepository.save(valetDenomination);
+//					}
+//				}
+//			});
+//
+//			if (createdValetDenominationsList != null && createdValetDenominationsList.size() > 0) {
+//				remote_valetDenominationsRepository.saveAll(createdValetDenominationsList);
+//			}
+//
+//			valetDenominationsList.forEach(valetDenominations -> {
+//				valetDenominations.setSync(true);
+//			});
+//
+//			valetDenominationsRepository.saveAll(valetDenominationsList);
+//		}
+//
+//	}
+//	@Transactional
+//	public void syncValetDenominationsData() {
+//		System.out.println("This is the Valetdenomination sync preocess checking ----------------------");
+//		List<ValetDenominations> valetDenominationsList = valetDenominationsRepository.findBySync(false);
+//		List<ValetDenominations> copyValetDenominationsList = cloneValetDenominations(valetDenominationsList);
+//
+//		
+//
+//		if (copyValetDenominationsList != null && !copyValetDenominationsList.isEmpty()) {
+//			copyValetDenominationsList.forEach(valetDenomination -> {
+//				valetDenomination.setSync(true);
+//
+//				if (valetDenomination.getCreatedBy() != null) {
+//					UserInfo remoteUserInfo = remote_userInfoRepository
+//							.findByIdentifier(valetDenomination.getCreatedBy().getIdentifier());
+//
+//					if (remoteUserInfo != null) {
+//						valetDenomination.setCreatedBy(remoteUserInfo);
+//					}
+//				
+//				}
+//				if (valetDenomination.getModifiedBy() != null) {
+//					UserInfo remoteModifiedUserInfo = remote_userInfoRepository
+//							.findByIdentifier(valetDenomination.getModifiedBy().getIdentifier());
+//
+//					if (remoteModifiedUserInfo != null) {
+//						valetDenomination.setModifiedBy(remoteModifiedUserInfo);
+//					}
+//				}
+//                ValetDenominations remortValetDenominations = remote_valetDenominationsRepository.findByIdentifier(valetDenomination.getCreatedBy().getIdentifier());
+//                
+//				if (remortValetDenominations == null) {
+//					remote_valetDenominationsRepository.save(convertToValetDenominations(valetDenomination, true));
+//				} else  {
+//					ValetDenominations dbValetDenominations = convertToValetDenominations(valetDenomination, true);
+//					
+//					
+//					dbValetDenominations.setId(remortValetDenominations.getId());
+//					dbValetDenominations.setCreatedBy(remortValetDenominations.getCreatedBy());
+//					remote_valetDenominationsRepository.save(dbValetDenominations);
+//
+//					
+//				}
+//		
+//			});
+//			
+//              valetDenominationsList.forEach(valetDenominations -> {
+//				valetDenominations.setSync(true);
+//			});
+//
+//			valetDenominationsRepository.saveAll(valetDenominationsList);
+//		}
+//
+//	}
+	
+	
+	@Transactional
 	public void syncValetDenominationsData() {
-		System.out.println("This is the Valetdenomination sync preocess checking ----------------------");
-		List<ValetDenominations> valetDenominationsList = valetDenominationsRepository.findBySync(false);
-		List<ValetDenominations> copyValetDenominationsList = cloneValetDenominations(valetDenominationsList);
+	    
+	    List<ValetDenominations> valetDenominationsList = valetDenominationsRepository.findBySync(false);
+	    List<ValetDenominations> copyValetDenominationsList = cloneValetDenominations(valetDenominationsList);
 
-		List<ValetDenominations> createdValetDenominationsList = new ArrayList<ValetDenominations>();
+	    if (copyValetDenominationsList != null && !copyValetDenominationsList.isEmpty()) {
+	        for (ValetDenominations valetDenomination : copyValetDenominationsList) {
+	        	
+	            valetDenomination.setSync(true);
 
-		if (copyValetDenominationsList != null && copyValetDenominationsList.size() > 0) {
-			copyValetDenominationsList.forEach(valetDenomination -> {
-				valetDenomination.setSync(true);
+	            // Ensure createdBy and modifiedBy are loaded within the transactional scope
+	            Hibernate.initialize(valetDenomination.getCreatedBy());
+	            Hibernate.initialize(valetDenomination.getModifiedBy());
 
-				if (valetDenomination.getCreatedBy() != null) {
-					UserInfo remoteUserInfo = remote_userInfoRepository
-							.findByIdentifier(valetDenomination.getCreatedBy().getIdentifier());
+	            if (valetDenomination.getCreatedBy() != null) {
+	            	
+	                UserInfo remoteUserInfo = remote_userInfoRepository.findByIdentifier(valetDenomination.getCreatedBy().getIdentifier());
 
-					if (remoteUserInfo != null) {
-						valetDenomination.setCreatedBy(remoteUserInfo);
-					}
-				}
+	                if (remoteUserInfo != null) {
+	                	System.out.println("This is the Valetdenomination sync process checking ----------------------");
+	                    valetDenomination.setCreatedBy(remoteUserInfo);
+	                }
+	            }
 
-				if (valetDenomination.getModifiedBy() != null) {
-					UserInfo remoteModifiedUserInfo = remote_userInfoRepository
-							.findByIdentifier(valetDenomination.getModifiedBy().getIdentifier());
+	            if (valetDenomination.getModifiedBy() != null) {
+	                UserInfo remoteModifiedUserInfo = remote_userInfoRepository.findByIdentifier(valetDenomination.getModifiedBy().getIdentifier());
 
-					if (remoteModifiedUserInfo != null) {
-						valetDenomination.setModifiedBy(remoteModifiedUserInfo);
-					}
-				}
+	                if (remoteModifiedUserInfo != null) {
+	                    valetDenomination.setModifiedBy(remoteModifiedUserInfo);
+	                }
+	            }
 
-				if (valetDenomination.getActionStatus() == ActionStatus.Created) {
-					createdValetDenominationsList.add(valetDenomination);
-				} else if (valetDenomination.getActionStatus() == ActionStatus.Updated) {
-					ValetDenominations dbValetDenominations = remote_valetDenominationsRepository
-							.findByIdentifier(valetDenomination.getIdentifier());
+	            ValetDenominations remoteValetDenominations = remote_valetDenominationsRepository.findByIdentifier(valetDenomination.getCreatedBy().getIdentifier());
 
-					if (dbValetDenominations != null) {
-						remote_valetDenominationsRepository.save(valetDenomination);
-					}
-				}
-			});
+	            if (remoteValetDenominations == null) {
+	                remote_valetDenominationsRepository.save(convertToValetDenominations(valetDenomination, true));
+	            } else {
+	                ValetDenominations dbValetDenominations = convertToValetDenominations(valetDenomination, true);
 
-			if (createdValetDenominationsList != null && createdValetDenominationsList.size() > 0) {
-				remote_valetDenominationsRepository.saveAll(createdValetDenominationsList);
-			}
+	                dbValetDenominations.setId(remoteValetDenominations.getId());
+	                dbValetDenominations.setCreatedBy(remoteValetDenominations.getCreatedBy());
+	                remote_valetDenominationsRepository.save(dbValetDenominations);
+	            }
+	        }
 
-			valetDenominationsList.forEach(valetDenominations -> {
-				valetDenominations.setSync(true);
-			});
+	        valetDenominationsList.forEach(valetDenominations -> valetDenominations.setSync(true));
 
-			valetDenominationsRepository.saveAll(valetDenominationsList);
-		}
-
+	        valetDenominationsRepository.saveAll(valetDenominationsList);
+	    }
 	}
 
 	private List<ValetDenominations> cloneValetDenominations(List<ValetDenominations> valetDenominationsList) {
 		List<ValetDenominations> list = new ArrayList<ValetDenominations>(valetDenominationsList.size());
 		valetDenominationsList.forEach(valetDenomination -> {
-			list.add(convertToValetDenominations(valetDenomination));
+			list.add(convertToValetDenominations(valetDenomination,true));
 		});
 		return list;
 	}
 
-	private ValetDenominations convertToValetDenominations(ValetDenominations valetDenomination) {
+	public ValetDenominations convertToValetDenominations(ValetDenominations valetDenomination,boolean update) {
 		ValetDenominations valetDenomination2 = new ValetDenominations();
 		valetDenomination2.setActionStatus(valetDenomination.getActionStatus());
 		valetDenomination2.setCents(valetDenomination.getCents());
