@@ -912,60 +912,6 @@ public class DataMigrationService extends CommonService {
 //		}
 //
 //	}
-//	@Transactional
-//	public void syncValetDenominationsData() {
-//		System.out.println("This is the Valetdenomination sync preocess checking ----------------------");
-//		List<ValetDenominations> valetDenominationsList = valetDenominationsRepository.findBySync(false);
-//		List<ValetDenominations> copyValetDenominationsList = cloneValetDenominations(valetDenominationsList);
-//
-//		
-//
-//		if (copyValetDenominationsList != null && !copyValetDenominationsList.isEmpty()) {
-//			copyValetDenominationsList.forEach(valetDenomination -> {
-//				valetDenomination.setSync(true);
-//
-//				if (valetDenomination.getCreatedBy() != null) {
-//					UserInfo remoteUserInfo = remote_userInfoRepository
-//							.findByIdentifier(valetDenomination.getCreatedBy().getIdentifier());
-//
-//					if (remoteUserInfo != null) {
-//						valetDenomination.setCreatedBy(remoteUserInfo);
-//					}
-//				
-//				}
-//				if (valetDenomination.getModifiedBy() != null) {
-//					UserInfo remoteModifiedUserInfo = remote_userInfoRepository
-//							.findByIdentifier(valetDenomination.getModifiedBy().getIdentifier());
-//
-//					if (remoteModifiedUserInfo != null) {
-//						valetDenomination.setModifiedBy(remoteModifiedUserInfo);
-//					}
-//				}
-//                ValetDenominations remortValetDenominations = remote_valetDenominationsRepository.findByIdentifier(valetDenomination.getCreatedBy().getIdentifier());
-//                
-//				if (remortValetDenominations == null) {
-//					remote_valetDenominationsRepository.save(convertToValetDenominations(valetDenomination, true));
-//				} else  {
-//					ValetDenominations dbValetDenominations = convertToValetDenominations(valetDenomination, true);
-//					
-//					
-//					dbValetDenominations.setId(remortValetDenominations.getId());
-//					dbValetDenominations.setCreatedBy(remortValetDenominations.getCreatedBy());
-//					remote_valetDenominationsRepository.save(dbValetDenominations);
-//
-//					
-//				}
-//		
-//			});
-//			
-//              valetDenominationsList.forEach(valetDenominations -> {
-//				valetDenominations.setSync(true);
-//			});
-//
-//			valetDenominationsRepository.saveAll(valetDenominationsList);
-//		}
-//
-//	}
 	
 	
 	@Transactional
