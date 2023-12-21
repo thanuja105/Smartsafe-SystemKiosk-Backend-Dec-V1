@@ -41,7 +41,7 @@ public class ChangeRequestService {
 		changeRequest.setOrderStatus(changeRequestDto.getOrderStatus());
 		changeRequest.setActionStatus(ActionStatus.Created);
 		changeRequestRepository.save(changeRequest);
-		emailTemplate.createChangeRequestMail(changeRequestDto);
+		//emailTemplate.createChangeRequestMail(changeRequestDto);
 		//send mail to truck owner
 	}
 	
