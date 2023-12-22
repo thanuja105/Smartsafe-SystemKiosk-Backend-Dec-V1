@@ -56,17 +56,27 @@ public class TruckChangeRequestService {
 		//dbValetDenominations.setModified(LocalDateTime.now());
 		//valetDenominationsRepository.save(dbValetDenominations);
 		String status="";
-		if(truckChangeRequestDto.getOrderStatus().toString()=="Ordered") {
-			status="Pending";
-		}
-		else if(truckChangeRequestDto.getOrderStatus().toString()=="Delivered") {
+		String orderStatus=truckChangeRequestDto.getOrderStatus();
+		//System.out.println("this is for checking OrderStatus------------"+truckChangeRequestDto.getOrderStatus());
+//		if(truckChangeRequestDto.getOrderStatus().equals("")) {
+//			status="Pending";
+//		}
+		
+		 if(truckChangeRequestDto.getOrderStatus().equals(orderStatus)) {
+			System.out.println("this is for checking OrderStatus------------"+truckChangeRequestDto.getOrderStatus());
+			//System.out.println("this is for checking OrderStatus------------");
 			status="Ordered";
 		}
+		else if(truckChangeRequestDto.getOrderStatus().equals(orderStatus)) {
+			System.out.println("this is for checking OrderStatus------------"+truckChangeRequestDto.getOrderStatus());
+			//System.out.println("this is for checking OrderStatus------------");
+			status="Delivered";
+		}
 		ChangeRequest changeRequest = changeRequestRepository.findByTypeAndOrderStatus(truckChangeRequestDto.getType(), status);
-		changeRequest.setOrderStatus(truckChangeRequestDto.getOrderStatus().toString());
+		changeRequest.setOrderStatus(truckChangeRequestDto.getOrderStatus());
 		changeRequestRepository.save(changeRequest);
 		truckChangeRequestRepository.save(truckChangeRequest);
-		emailTemplate.confirmTruckchangeMail(truckChangeRequest);
+		//emailTemplate.confirmTruckchangeMail(truckChangeRequest);
 	}
 
 	public List<TruckChangeRequest> findAll() {
