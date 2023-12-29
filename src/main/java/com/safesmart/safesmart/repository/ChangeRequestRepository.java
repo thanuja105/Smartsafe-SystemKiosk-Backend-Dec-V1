@@ -18,7 +18,8 @@ Optional<ChangeRequest> findById(Long id);
 	
 	List<ChangeRequest> findAll();
 	
-	ChangeRequest findByTypeAndOrderStatus(String type, String orderStatus);
+	List<ChangeRequest> findByTypeAndOrderStatus(String type, String orderStatus);
+	 //ChangeRequest findByTypeAndOrderStatus(String type, String orderStatus);
 	
 	ChangeRequest findByType(String type);
 	
