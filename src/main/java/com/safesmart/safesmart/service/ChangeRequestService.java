@@ -52,7 +52,10 @@ public class ChangeRequestService {
 	}
 	
 	public ChangeRequest findByTypeAndOrderStatus(String type, String orderStatus) {
-		return  changeRequestRepository.findByTypeAndOrderStatus(type, orderStatus);
+		List<ChangeRequest> chr=changeRequestRepository.findByTypeAndOrderStatus(type, orderStatus);
+		ChangeRequest changerequest=chr.stream().findFirst().orElse(null);
+		//changeRequestRepository.findByTypeAndOrderStatus(type, orderStatus)
+		return  changerequest;
 	}
 
 }
