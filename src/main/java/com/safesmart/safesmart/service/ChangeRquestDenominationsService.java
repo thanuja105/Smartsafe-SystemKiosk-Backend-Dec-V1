@@ -75,31 +75,6 @@ public class ChangeRquestDenominationsService {
 			valetDenominations.setSync(true);
 			valetDenominations.setActionStatus(ActionStatus.Updated);
 			
-			ValetDenominations dbValetDenominations = remote_ValetDenominations.findByIdentifier(valetDenominations.getIdentifier());
-			Hibernate.initialize(dbValetDenominations.getCreatedBy());
-            Hibernate.initialize(dbValetDenominations.getModifiedBy());
-			if (dbValetDenominations == null) {
-				dbValetDenominations.setSync(true);
-			}
-
-			try {
-				if(dbValetDenominations != null) {
-				ValetDenominations upadtedvaletDenominations = dataMigrationService.convertToValetDenominations(valetDenominations,true);
-				Hibernate.initialize(valetDenominations.getCreatedBy());
-	            Hibernate.initialize(valetDenominations.getModifiedBy());
-
-	            
-				upadtedvaletDenominations.setSync(true);
-				upadtedvaletDenominations.setId(dbValetDenominations.getId());
-				upadtedvaletDenominations.setCreatedBy(dbValetDenominations.getCreatedBy());
-				remote_ValetDenominations.save(upadtedvaletDenominations);
-				}
-				
-			} catch (Exception e) {
-				valetDenominations.setSync(false);
-			}
-
-			
 			
 			valetDenominationsRepository.save(valetDenominations);
 			changeValetDenominations.setValetDenominations(valetDenominations);
